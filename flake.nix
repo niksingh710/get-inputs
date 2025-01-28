@@ -29,7 +29,9 @@
                 inputs = inputs;
               }
             else
-              null;
+              {
+                path = input;
+              };
         in
         {
           packages.default = pkgs.writeText "output.json"
