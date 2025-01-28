@@ -12,21 +12,30 @@
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
       perSystem = { config, self', inputs', pkgs, system, self, ... }:
         let
-
-          dfs = input:
-            {
-              path = input;
-              "inputs" =
-                if builtins.hasAttr "inputs" input then
-                  builtins.mapAttrs (name: value: dfs value) input.inputs
-                else null;
-            };
+          dfs = input: seen:
+            if builtins.hasAttr "inputs" input then
+              let
+                inputs = builtins.mapAttrs
+                  (name: value:
+                    if builtins.hasAttr name seen then
+                      seen.${name}
+                    else
+                      dfs value (seen // { "${name}" = value; })
+                  )
+                  input.inputs;
+              in
+              {
+                path = input;
+                inputs = inputs;
+              }
+            else
+              null;
         in
         {
-          packages.default = pkgs.writeText "
-                output.json " ''
-            ${builtins.toJSON (dfs inputs.flake)}
-          '';
+          packages.default = pkgs.writeText "output.json"
+            ''
+              ${builtins.toJSON (dfs inputs.flake {})}
+            '';
         };
     };
 }
