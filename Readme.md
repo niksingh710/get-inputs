@@ -6,6 +6,6 @@ nix build --override-input flake github:srid/emanote github:niksingh710/get-inpu
 
 ### TODO
 ##### Final Goal Get the below snippet working
-```
+```sh
+# => print all inputs of the nix repository flake, transitively
 cat $(nix build --print-out-paths github:niksingh710/get-inputs --override-input flake github:nixos/nix)
-  # => print all inputs of the nix repository flake, transitively
